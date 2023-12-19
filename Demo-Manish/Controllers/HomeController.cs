@@ -6,27 +6,72 @@ namespace Demo_Manish.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IEmployeeRepo _employeerepo;
+
+        public HomeController(IEmployeeRepo employeerepo)
         {
-            _logger = logger;
+            _employeerepo = employeerepo;
         }
-
         public IActionResult Index()
         {
-            return View();
+            List<EmployeeModel> list = _employeerepo.EmployeeGet();
+            return View(list);
         }
-
-        public IActionResult Privacy()
+        public ActionResult AddEmployee()
         {
             return View();
         }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public ActionResult AddEmployee(EmployeeModel model)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (ModelState.IsValid)
+            {
+                var res = _employeerepo.AddEmployee(model);
+
+                //if (res.Status == "success")
+                //{
+                //    TempData["massage"] = "Employee Add successfully";
+                //    return RedirectToAction("Index");
+                //}
+            }
+            return RedirectToAction("Index");
+        }
+        public ActionResult update(int id)
+        {
+            EmployeeModel employee = _employeerepo.GetEmployeeinfo(id);
+            return View(employee);
+        }
+        [HttpPost]
+        public ActionResult update(EmployeeModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var res = _employeerepo.UpdateEmployee(model);
+
+                //if (res.Status == "success")
+                //{
+                //    TempData["massage"] = "Employee update successfully";
+                //    return RedirectToAction("Index");
+                //}
+            }
+            return View();
+        }
+        public IActionResult details(int id)
+        {
+            EmployeeModel employee = _employeerepo.GetEmployeeinfo(id);
+            return View(employee);
+        }
+        
+        public IActionResult Delete(int id)
+        {
+            var res = _employeerepo.DeleteEmployee(id);
+            //if (res.Status == "success")
+            //{
+            //    TempData["massage"] = "Employee delete successfully";
+            //    return RedirectToAction("Index");
+            //}
+            return RedirectToAction("Index");
         }
     }
 }
